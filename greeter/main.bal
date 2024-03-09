@@ -1,13 +1,23 @@
 import ballerina/http;
 
-listener http:Listener httpListener = new (8080);
+type Album readonly & record {|
+    string title;
+    string artist;
+|};
 
-service / on httpListener {
-    resource function get greeting() returns string { 
-        return "Hello, World!"; 
+table<Album> key(title) albums = table [
+    {title: "Blue Train", artist: "John Coltrane"},
+    {title: "Jeru", artist: "Gerry Mulligan"}
+];
+
+service / on new http:Listener(9090) {
+
+    resource function get albums() returns Album[] {
+        return albums.toArray();
     }
 
-    resource function get greeting/[string name]() returns string { 
-        return "Hello " + name; 
+    resource function post albums(Album album) returns Album {
+        albums.add(album);
+        return album;
     }
 }
